@@ -1,8 +1,10 @@
 
 import sys
 import random
-from Q1 import Q1
 
+sys.path.append('../')
+
+from Q1 import Q1
 init_vec = [0,0,1]
 x_vec = init_vec
 mat = [[2,3,2],[10,3,4],[3,6,1]]
