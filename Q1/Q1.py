@@ -5,6 +5,8 @@
 import random
 import sys
 import time
+
+
 def generate_sparse_matrix(n,percentage):
 
     # Creating a n x n matrix.
@@ -203,11 +205,85 @@ def matrix_X_vector_dense_algorithm(matrix,vector):
     # print((time2 - time1) * 1000)
     return ret_vector
 
+# Q1 part k
+
+# Matrix addition of Sparse Matrices
 def matrix_matrix_add_sparse_algorithm(crs1,crs2):
+    i = 0
+    length = len(crs1[0])-1
+    crs3 = list()
+    row_ptr = [0]*(length+1)
+    col_ind = list()
+    values = list()
+    crs3.append(row_ptr)
+    crs3.append(col_ind)
+    crs3.append(values)
+    # A zero matrix is created. Now insert element one by one.
+    while(i<length):
+        # Each i is now a row of the matrix.
+        # Hence for each row merge the matrices
+        crs1_len = crs1[0][i+1]-crs1[0][i]
+        crs2_len = crs2[0][i+1]-crs2[0][i]
+        j ,k= crs1[0][i],crs2[0][i]
+        row_ind = 0
+        if(crs2_len>0 and crs1_len >0): # Both rows are non zero
+            while(j<crs1[0][i+1] or k < crs2[0][i+1]):
+                if(j< crs1[0][i+1] and k<crs2[0][i+1]):
+                    if(crs1[1][j] == crs2[1][k]):
+                        crs3[1].append(crs2[1][k])
+                        crs3[2].append(crs1[2][j]+crs2[2][k])
+                        j,k = j+1,k+1
+                        row_ind = row_ind +1
+                    else:
+                        if(crs1[1][j]<crs2[1][k]):
+                            crs3[1].append(crs1[1][j])
+                            crs3[2].append(crs1[2][j])
+                            j = j+1
+                        else:
+                            crs3[1].append(crs2[1][k])
+                            crs3[2].append(crs2[2][k])
+                            k = k + 1
+                        row_ind = row_ind + 1
+                elif(j<crs1[0][i+1]):# No further elements to add in crs2
+                    crs3[1].append(crs1[1][j])
+                    crs3[2].append(crs1[2][j])
+                    j = j+1
+                    row_ind = row_ind + 1
+                else:# No further elements to add in crs1
+                    crs3[1].append(crs2[1][k])
+                    crs3[2].append(crs2[2][k])
+                    k = k+1
+                    row_ind = row_ind + 1
+        else:
+            if(crs1_len>0): # crs1 is only non zero
+                while (j < crs1[0][i + 1]):
+                    # if (crs1[1][j] == crs2[1][k]):
+                    crs3[1].append(crs1[1][j])
+                    crs3[2].append(crs1[2][j])
+                    j = j + 1
+                    row_ind = row_ind + 1
+            if(crs2_len>0): # only crs2 is non zero
+                while (k < crs2[0][i + 1]):
+                    # if (crs1[1][j] == crs2[1][k]):
+                    crs3[1].append(crs2[1][k])
+                    crs3[2].append(crs2[2][k])
+                    k = k + 1
+                    row_ind = row_ind + 1
+        crs3[0][i+1] = crs3[0][i] +row_ind
+        i = i +1
+    return crs3
+def _matrix_matrix_add_sparse_algorithm(crs1,crs2):
     t = 0
-    crs3 = crs1
+    col_ptr = [0]*len(crs1[0])
+    col_ind = list()
+    values= list()
+    crs3 = crs1# list()
+    # crs3.append(col_ptr)
+    # crs3.append(col_ind)
+    # crs3.append(values)
     count = 0
     time1 = time.time()
+    e1,e2 = 0,0
     for i in range(0,len(crs1[0])-1):# Set of rows are selected.
         flag = False
         k = crs1[0][i+1]
@@ -228,6 +304,7 @@ def matrix_matrix_add_sparse_algorithm(crs1,crs2):
                     e1 = e1+e2
                     # set_element_crs(crs3,i,p,e1)
                     crs3[2][p] = e1
+                    # set_element_crs(crs3,i,p,e1)
                 elif(q!=-1):
                     # set_element_crs(crs3,i,q,e2)
                     crs3[1].insert(n,q)
@@ -243,90 +320,78 @@ def matrix_matrix_add_sparse_algorithm(crs1,crs2):
     print((time2-time1)*1000)
     return crs3
 
+# Matrix addition of Dense Matrices
 def matrix_matrix_add_dense_algorithm(matrix1,matrix2):
-    time1 = time.time()
+    # time1 = time.time()
     if(len(matrix1) == len(matrix2)):
         for x in range(0,len(matrix1)):
             for y in range(0,len(matrix1[0])):
                 matrix1[x][y] = matrix1[x][y] + matrix2[x][y]
-    time2 = time.time()
-    print((time2-time1)*1000)
+    # time2 =time.time()
 
     return matrix1
-n = 5
+# n = 5*(50+50)*2*5
 # vec = generate_dense_vector(n,90)
 # mat = generate_sparse_matrix(n,90)
 # CRS = matrix_to_crs(mat)
-# print("Matrix is ",mat)
-# print("Matix in CRS format ", CRS)
-# print("Vector is ",vec)
-
+# # print("Matrix is ",mat)
+# # print("Matix in CRS format ", CRS)
+# # print("Vector is ",vec)
+#
+#
 # time_dense_start = time.time()
 # result_vector_dense = matrix_X_vector_dense_algorithm(mat,vec)
 # time_dense_end = time.time()
-
+#
 # time_sparse_start = time.time()
 # result_vector_sparse = matrix_X_vector_sparse_algorithm(CRS,vec)
 # time_sparse_end = time.time()
-
+#
 # elapsed_time_sparse = (time_sparse_end - time_sparse_start)*1000.0 #in ms
-
-# print(result_vector_sparse)
+#
+# print("N =",n)
+# print("Matrix Vector Multiplication ........")
+# # print(result_vector_sparse)
 # print("Execution Time for sparse algorithm : ",elapsed_time_sparse," ms" )
-
-
+#
+#
 # elapsed_time_dense = (time_dense_end - time_dense_start)*1000.0 #in ms
-
-# print(result_vector_dense)
+#
+# # print(result_vector_dense)
 # print("Execution Time for dense algorithm : ",elapsed_time_dense," ms" )
-
-#Genarate Matrix1
-# print("Running...")
-mat1 = generate_sparse_matrix(n,90)
-mat2 = generate_sparse_matrix(n,90)
-# print("Running...")
-crs1 = matrix_to_crs(mat1)
-crs2 = matrix_to_crs(mat2)
-print(mat1)
-print(mat2)
-print(crs1)
-print(crs2)
-
-
-time_sparse_start_add = time.time()
-print("Running....... Sparse")
-result_matrix_sparse_add = matrix_matrix_add_sparse_algorithm(crs1,crs2)
-time_sparse_end_add = time.time()
-
-time_dense_start_add = time.time()
-print("Running......Dense")
-result_matrix_dense_add = matrix_matrix_add_dense_algorithm(mat1,mat2)
-time_dense_end_add = time.time()
-# print(result_matrix_dense_add)
-elapsed_time_dense_add = (time_dense_end_add-time_dense_start_add)*1000.0
-print("Execution Time for dense algorithm for addition: ",elapsed_time_dense_add," ms" )
-
-print(result_matrix_sparse_add)
-elapsed_time_sparse_add = (time_sparse_end_add-time_sparse_start_add)*1000.0
-print("Execution Time for sparse algorithm for addition: ",elapsed_time_sparse_add," ms" )
-
-# print(get_element_crs(CCS,1,4))
-print("Please enter the size of the matrix you want to generate : ")
-inp = input()
-n = int(inp)
-# n = 0
-print("Random Matrix is generating .....")
-matrix_n = generate_sparse_matrix(n,90)
-print(matrix_n)
-print("Converting the Matrix to 'CRS' format......")
-crs_n = matrix_to_crs(matrix_n)
-print(crs_n)
-print("Setting diagonal elements to 2016....")
-for x in range(0,n):
-    set_element_crs(crs_n,x,x,2016)
-print(crs_n)
-print("Converting the Matrix to CCS format.....")
-ccs_n = crs_to_ccs(crs_n)
-print(ccs_n)
-# Need to be implemented.
-
+#
+# #Genarate Matrix1
+# # print("Running...")
+# mat1 = generate_sparse_matrix(n,90)
+# mat2 = generate_sparse_matrix(n,90)
+# # print("Running...")
+# crs1 = matrix_to_crs(mat1)
+# crs2 = matrix_to_crs(mat2)
+# # print(mat1)
+# # print(mat2)
+# # print(crs1)
+# # print(crs2)
+#
+# print("Matrix Addition........")
+# time_sparse_start_add = time.time()
+# print("Running....... Sparse")
+# result_matrix_sparse_add = matrix_matrix_add_sparse_algorithm(crs1,crs2)
+# time_sparse_end_add = time.time()
+#
+# time_dense_start_add = time.time()
+# print("Running......Dense")
+# result_matrix_dense_add = matrix_matrix_add_dense_algorithm(mat1,mat2)
+# time_dense_end_add = time.time()
+#
+#
+# # print(result_matrix_sparse_add)
+# elapsed_time_sparse_add = (time_sparse_end_add-time_sparse_start_add)*1000.0
+# print("Execution Time for sparse algorithm for addition: ",elapsed_time_sparse_add," ms" )
+#
+#
+# # print(result_matrix_dense_add)
+# elapsed_time_dense_add = (time_dense_end_add-time_dense_start_add)*1000.0
+# print("Execution Time for dense algorithm for addition: ",elapsed_time_dense_add," ms" )
+#
+#
+# # # print(get_element_crs(CCS,1,4))
