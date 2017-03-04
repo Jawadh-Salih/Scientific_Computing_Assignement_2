@@ -11,4 +11,4 @@ python3 <path to Q1_i.py file>
 (Eg :~/PycharmProjects/Scientific_Computing_Assignement_2$ python3 Q1/Q1_i.py )
 
 
-
+For an Example implementation you can Run Q1_example.py and see other function results.
