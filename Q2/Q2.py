@@ -7,7 +7,8 @@ sys.path.append('../')
 from Q1 import Q1
 init_vec = [0,0,1]
 x_vec = init_vec
-mat = [[2,3,2],[10,3,4],[3,6,1]]
+shift = -3
+matrix_example = [[2,3,2],[10,3,4],[3,6,1]]
 
 def infini_norm(vec):
     max = 0
@@ -62,7 +63,7 @@ def normalized_power_iteration(crs,vec,tolarance):
     value_pair.append(eigen_vec)
     # real_vec = demormalize_vector(eigen_vec,max_eigen)
     # value_pair.append(real_vec)
-    value_pair.append(eigen_vec.index(1.0))
+    value_pair.append(iter)
     value_pair.append(round(max_eigen,4))
 
     return value_pair
@@ -70,11 +71,21 @@ def normalized_power_iteration(crs,vec,tolarance):
 
 def shifted_normalized_power_iteration(mat,vec,shift,tolarance):
     crs_new = shift_matrix(mat,shift)
+    print(crs_new)
     crs_new = Q1.matrix_to_crs(crs_new)
-    normalized_power_iteration(crs_new,vec,tolarance)
+    result = normalized_power_iteration(crs_new,vec,tolarance)
+    return result
 
 # Q2 part e. The Pagerank algorithm
+crs = Q1.matrix_to_crs(matrix_example)
+print(matrix_example)
+res1 = normalized_power_iteration(crs,init_vec,4)
+print(res1)
+print("Eigen Value after add shifted value. :" ,res1[2])
 
+res = shifted_normalized_power_iteration(matrix_example,init_vec,shift,10)
+print(res)
+print("Eigen Value after add shifted value. :" ,res[2]+ shift)
 
 def pagerank(matrix,tolrance):
     n = len(matrix)
@@ -112,7 +123,6 @@ def generate_sparse_matrix(n):
 web_page_matrix = generate_sparse_matrix(1000)
 
 result = pagerank(web_page_matrix,1)
-print("Number 1 ranked web page is web page number",result[1]+1)
 
 print("-----------------------------Ranked Web Pages-------------------------------")
 pages = len(result[0])
